@@ -3,7 +3,7 @@
    3. Каждого супергероя реализовать как наследника SuperHero и вместо
       изменения базового класса переопределять нужные методы'''
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 from antagonistfinder import AntagonistFinder
@@ -21,6 +21,13 @@ class TV:
     def planets(self, planet):
         planet_coordinates = getattr(planet, 'coordinates', 'place')
         print(f'{self.name} notifies {planet_coordinates}')
+
+
+@dataclass(repr=False, eq=False)
+class Punch():
+    @staticmethod
+    def punch():
+        print('PUNCH!')
 
 
 @dataclass(repr=False, eq=False)
@@ -45,7 +52,7 @@ class Kick():
 
 
 @dataclass(repr=False, eq=False)
-class SuperHero:
+class SuperHero(ABC):
     name: str
     can_use_ultimate_attack: bool = True
     finder: AntagonistFinder = AntagonistFinder()
@@ -54,40 +61,35 @@ class SuperHero:
     def attack(self):
         pass
 
+    @abstractmethod
+    def ultimate(self):
+        pass
+
     def find(self, place):
         self.finder.get_antagonist(place)
 
 
 @dataclass(repr=False, eq=False)
-class TaekwondoHero(SuperHero, Kick):
+class ChuckNorris(SuperHero, Gun, Kick):
+
+    def __init__(self):
+        super().__init__('Chuck Norris', False)
 
     def attack(self):
         self.roundhouse_kick()
 
-
-@dataclass(repr=False, eq=False)
-class ShootingHero(SuperHero, Gun):
-
-    def attack(self):
+    def ultimate(self):
         self.fire_a_gun()
 
 
 @dataclass(repr=False, eq=False)
-class EyeLasersHero(SuperHero, Laser):
-
-    def attack(self):
-        self.incinerate_with_lasers()
-
-    def ultimate(self):
-        if self.name == 'Clark Kent':
-            self.incinerate_with_lasers()
-
-
-@dataclass(repr=False, eq=False)
-class Superman(EyeLasersHero):
+class Superman(SuperHero, Laser, Punch):
 
     def __init__(self):
-        super(Superman, self).__init__('Clark Kent', True)
+        super().__init__('Clark Kent', True)
 
     def attack(self):
-        return 'Kick'
+        self.punch()
+
+    def ultimate(self):
+        self.incinerate_with_lasers()
